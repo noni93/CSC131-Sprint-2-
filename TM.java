@@ -99,31 +99,6 @@ public class TM{
             save_log_file(task_name + "," +  date + ".start");
             save_log_file(task_name+","+".describe,"+description);
             save_log_file(task_name+",size"+size);
-
-
-
-        }
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        boolean check =  list.task_checker_start(task_name);    // if task is started or not yet
-        if(check == false){
-            save_log_file(task_name + "," +  date + ".start");
-            save_log_file(task_name + "," +  date + ".describe," + description);
-        }else  {
-         save_log_file(task_name + "," + ".describe,"+ description);
         }
     }
 
@@ -161,18 +136,29 @@ public class TM{
     LinkedList<String> new_list = new LinkedList<String>(); // temp list
     LinkedList<String> sorted_list = new LinkedList<String>();  // stores summary info
 
-    public boolean task_checker_start(String task){
-        summary_task();
 
-        return true;
-       
-    }
-    public boolean task_checker_stop(String task){
-        summary_task();
-       
-        return true;
-    }
-
+    public void main(){ // reads log file to linked lists
+        String content = new String();
+        File file = new File("log.txt");
+        try {
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            Scanner sc = new Scanner(new FileInputStream(file));
+            while (sc.hasNextLine()){
+                content = sc.nextLine();
+                list.add(content); 
+                new_list.add(content);  
+            }
+            sc.close();
+        }catch(FileNotFoundException fnf){
+            fnf.printStackTrace();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("\nProgram terminated Safely...");
+        }
+    }     
 
     void summary_task(){
         main(); // call to read the file into linked list
@@ -236,36 +222,36 @@ public class TM{
         if(stop == "00:00:00"){ // if stop is not yet entered by user
             final_time = stop;
         }else{
-        try {
-            date_start = sdf.parse(start.substring(9,17));  // convert date in string format to date format
-            date_stop = sdf.parse(stop.substring(9,17));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        start_month = Integer.parseInt(start.substring(0,2));   // gets starting month of task
-        start_day =  Integer.parseInt(start.substring(3,5));    // gets starting day of task
-        start_year = Integer.parseInt(start.substring(6,8));    // gets starting year of task
-        stop_month = Integer.parseInt(stop.substring(0,2));     // gets ending month of task
-        stop_day =  Integer.parseInt(stop.substring(3,5));      // gets ending day of task
-        stop_year = Integer.parseInt(stop.substring(6,8));      // gets ending year of task
-        day = stop_day - start_day; 
-        month = stop_month - start_month;
-        year = stop_year - start_year;
-        // used the following code from 
-        //https://stackoverflow.com/questions/5911387/difference-in-time-between-two-dates-in-java
-        long difference = date_stop.getTime() - date_start.getTime();   //differecne between the date, using java built in function
-        difference = difference/1000;   // convert to seconds
-        long hours = difference / 3600; // convert seconds to hours
-        long minutes = (difference % 3600) / 60;
-        long seconds = difference % 60;
-        if(day>1){  // if task takes more than an hour, save how many days,months or years it tool
-            final_time = String.format("Year: "  + year + "Month: " + month + "Days: " + day + hours+":"+minutes+":"+seconds);
+            try {
+                date_start = sdf.parse(start.substring(9,17));  // convert date in string format to date format
+                date_stop = sdf.parse(stop.substring(9,17));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            start_month = Integer.parseInt(start.substring(0,2));   // gets starting month of task
+            start_day =  Integer.parseInt(start.substring(3,5));    // gets starting day of task
+            start_year = Integer.parseInt(start.substring(6,8));    // gets starting year of task
+            stop_month = Integer.parseInt(stop.substring(0,2));     // gets ending month of task
+            stop_day =  Integer.parseInt(stop.substring(3,5));      // gets ending day of task
+            stop_year = Integer.parseInt(stop.substring(6,8));      // gets ending year of task
+            day = stop_day - start_day; 
+            month = stop_month - start_month;
+            year = stop_year - start_year;
+            // used the following code from 
+            //https://stackoverflow.com/questions/5911387/difference-in-time-between-two-dates-in-java
+            long difference = date_stop.getTime() - date_start.getTime();   //differecne between the date, using java built in function
+            difference = difference/1000;   // convert to seconds
+            long hours = difference / 3600; // convert seconds to hours
+            long minutes = (difference % 3600) / 60;
+            long seconds = difference % 60;
+            if(day>1){  // if task takes more than an hour, save how many days,months or years it tool
+                final_time = String.format("Year: "  + year + "Month: " + month + "Days: " + day + hours+":"+minutes+":"+seconds);
 
-        }else{  // else just save time upto hours
-            final_time = String.format(hours+":"+minutes+":"+seconds);
+            }else{  // else just save time upto hours
+                final_time = String.format(hours+":"+minutes+":"+seconds);
+            }
         }
-    }
-     return final_time;
+        return final_time;
     }
 
     void print_summary(String task_name){
@@ -297,29 +283,23 @@ public class TM{
                 }
                 else System.err.println("Please enter a valid task");
 
+        }
     }
-}
+    
 
-    public void main(){ // reads log file to linked lists
-        String content = new String();
-        File file = new File("log.txt");
-        try {
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            Scanner sc = new Scanner(new FileInputStream(file));
-            while (sc.hasNextLine()){
-                content = sc.nextLine();
-                list.add(content); 
-                new_list.add(content);  
-            }
-            sc.close();
-        }catch(FileNotFoundException fnf){
-            fnf.printStackTrace();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("\nProgram terminated Safely...");
-        }
-    }       
+    public boolean task_checker_start(String task){
+        summary_task();
+
+        return true;
+       
+    }
+    public boolean task_checker_stop(String task){
+        summary_task();
+       
+        return true;
+    }
+
+
+
+     
 }
