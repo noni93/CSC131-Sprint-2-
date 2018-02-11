@@ -40,8 +40,8 @@ public class TM{
                         break;
             }
         }
-        else if(args.length == 3){
-            describe_task(args[1], args[2]);
+        else if(args.length == 4){
+            describe_task(args[1], args[2], args[3]);
         }
         else{
             usage();
@@ -89,8 +89,35 @@ public class TM{
         }
     }
 
-    void describe_task(String task_name, String description){
+    void describe_task(String task_name, String description, String size){
         String date = get_time();
+        boolean start_flag = true;
+        if(start_flag == true){ // task has already been started
+            save_log_file(task_name+","+".describe,"+description);
+            save_log_file(task_name+",size"+size);
+        }else{
+            save_log_file(task_name + "," +  date + ".start");
+            save_log_file(task_name+","+".describe,"+description);
+            save_log_file(task_name+",size"+size);
+
+
+
+        }
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         boolean check =  list.task_checker_start(task_name);    // if task is started or not yet
         if(check == false){
             save_log_file(task_name + "," +  date + ".start");
@@ -136,33 +163,14 @@ public class TM{
 
     public boolean task_checker_start(String task){
         summary_task();
-        boolean flag = false;
-        for(int i = 0; i<new_list.size(); i++){
-            String line = new_list.get(i);
-            if(line.contains(task)){
-                flag = true; // task already running
-                i = new_list.size() +1;
-            }
-        }
-        return flag; 
+
+        return true;
+       
     }
     public boolean task_checker_stop(String task){
         summary_task();
-        boolean flag = true;
-        for(int i = 0; i<new_list.size(); i++){
-            String line = new_list.get(i);
-           if((line.contains(task) && line.contains("stop"))){
-                flag = false; // task already stopped
-                i = new_list.size() + 1;
-            }
-            else if (line.contains(task) == true){
-                flag = true;    
-            }
-            else{
-                flag = false;
-            }
-        }
-        return flag; 
+       
+        return true;
     }
 
 
