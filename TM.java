@@ -71,62 +71,59 @@ public class TM{
 
     void start_task(String task_name){  
         String date = get_time();
-        boolean check =  list.task_checker_start(task_name);    // if task already started ??
-        if(check == true){
-            System.err.println("Task already running or completed");
-        }else  {
-         save_log_file(task_name + "," +  date + ".start"); //else log it
-        }
+    
     }
 
     void stop_task(String task_name){
         String date = get_time();
-        boolean check_start =  list.task_checker_stop(task_name);   // if task is started or not
-        if(check_start == false){       // cant stop a task if not started yet
-            System.err.println("Task not started yet/or already finished");
-        }else{
-         save_log_file(task_name + "," +  date + ".stop");
-        }
+       
     }
 
     void describe_task(String task_name, String description, String size){
         String date = get_time();
-        boolean start_flag = true;
-        if(start_flag == true){ // task has already been started
-            save_log_file(task_name+","+".describe,"+description);
-            save_log_file(task_name+",size"+size);
-        }else{
-            save_log_file(task_name + "," +  date + ".start");
-            save_log_file(task_name+","+".describe,"+description);
-            save_log_file(task_name+",size"+size);
-        }
+        
     }
 
-    void save_log_file(String input){   // writing info to log file
-        FileWriter fw = null;
-        BufferedWriter bw = null;
-        try{
-            File file = new File("log.txt");
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            fw = new FileWriter(file.getAbsoluteFile(), true);
-            bw = new BufferedWriter(fw);
-            bw.write(input + "\n");
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-        finally{
+
+    class WriteLog{
+        void save_log_file(String input){   // writing info to log file
+            FileWriter fw = null;
+            BufferedWriter bw = null;
             try{
-                if(bw != null) bw.close();
-                if(fw != null) fw.close();
-            } catch(IOException ex){
-                ex.printStackTrace();
+                File file = new File("log.txt");
+                if(!file.exists()){
+                    file.createNewFile();
+                }
+                fw = new FileWriter(file.getAbsoluteFile(), true);
+                bw = new BufferedWriter(fw);
+                bw.write(input + "\n");
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+            finally{
+                try{
+                    if(bw != null) bw.close();
+                    if(fw != null) fw.close();
+                } catch(IOException ex){
+                    ex.printStackTrace();
+                }
             }
         }
+
     }
 
+    
 }
+
+class LogFileEntry{
+    String task_name = "";
+    String description = "";
+    String task_size = "";
+    String time ="";
+}
+
+
+/*
 
 //https://stackoverflow.com/questions/16247623/how-to-read-from-a-file-and-save-the-content-into-a-linked-list
  class FileLinkList
@@ -163,10 +160,11 @@ public class TM{
     void summary_task(){
         main(); // call to read the file into linked list
         String line = null, task_name = null, start_time = null, describe_task = null, temp = null;
-        int index_comma = 0, index_dot = 0, second_comma = 0;
+        int index_comma = 0, index_dot = 0, second_comma = 0, colon = 0;
         String stop_time = "00:00:00";
         String stop_task = "";
         String describe = "";
+        String t_size = "";
         int list_size = list.size();
         int size = list.size();
 
@@ -176,11 +174,11 @@ public class TM{
             index_dot = line.indexOf(".");
             task_name = line.substring(0,index_comma);  // task name is saved between index 0 to index of first comma
             if(line.contains("start")){
-                start_time = line.substring(index_comma+1, index_dot);  // start time is daved betweeen first comma and a dot
+                start_time = line.substring(index_comma+1, index_dot);  // start time is saved betweeen first comma and a dot
             }
             // for comparing task with other elements in list
             for(int i = j+1; i <=size;i++){
-                if(i == list.size()){
+                if(i == list.size()){   // if i= last element in list
                     temp = list.getLast();
                 }else{
                 temp = list.get(i); }
@@ -190,22 +188,33 @@ public class TM{
                     if(i == list.size()){   // checks if last node of the list
                     list.addLast("end");}   // add something to the end so delete the current node
                     list.remove(i);
+                    i = i-1;
                 }
                 else if(temp.contains(task_name) && temp.contains("describe")){
-                    second_comma = temp.indexOf(",",index_comma + 3);   
+                    second_comma = temp.indexOf(",",9);   
                     describe_task = temp.substring(second_comma+1); // description of task from comma to end of line
                     describe = describe_task;
                     if(i == list.size()){
                         list.addLast("end");}
                         list.remove(i);
                 }
+                else if(temp.contains("size") && temp.contains(task_name)){
+                    t_size = temp.substring(temp.indexOf(":")+1);
+                    if(i == list.size()){
+                        list.addLast("end");}
+                        list.remove(i);
+
+                }
                 size = list.size();     // updating size of the list
+                list_size = list.size();
             }
             String total_time = get_time_int(start_time, stop_time);    // finction to get total time spent on a task
-            sorted_list.add("Task: "+ task_name + "\tDescription: "+ describe + "\nTotal Time: " +total_time ); // add element to task in sorted order
+            sorted_list.add("Task: "+ task_name + "\t\tDescription: "+ describe + "\nTotal Time: " +total_time + "\tSize: "  + t_size ); // add element to task in sorted order
+        
             stop_task = "";
             describe = "";
             stop_time= "00:00:00";
+            t_size = "";
             list_size = list.size();
         }        
     }
@@ -244,8 +253,20 @@ public class TM{
             long hours = difference / 3600; // convert seconds to hours
             long minutes = (difference % 3600) / 60;
             long seconds = difference % 60;
-            if(day>1){  // if task takes more than an hour, save how many days,months or years it tool
-                final_time = String.format("Year: "  + year + "Month: " + month + "Days: " + day + hours+":"+minutes+":"+seconds);
+
+            if(hours < 0 || minutes < 0 || seconds < 0){
+                hours = 24 + hours;
+                minutes = 60 + minutes;
+                seconds = 60 + seconds;
+
+                if(hours < 24){
+                    day--;
+                }
+            }
+
+
+            if(day>=1){  // if task takes more than an hour, save how many days,months or years it tool
+                final_time = String.format("Years: "  + year + " Months: " + month + " Days: " + day +"   " + hours+":"+minutes+":"+seconds);
 
             }else{  // else just save time upto hours
                 final_time = String.format(hours+":"+minutes+":"+seconds);
@@ -288,18 +309,23 @@ public class TM{
     
 
     public boolean task_checker_start(String task){
-        summary_task();
+        main();
+        boolean flag = false;
+        String temp = null;
+        for(int i = 0; i<list.size();i++){
+            temp = list.get(i);
+            if(temp.contains(task) && temp.contains("start")){
+                flag = true;
+            }
 
-        return true;
+            if(temp.contains(task) && temp.contains("stop")){
+                flag = false;
+            }
+            
+        }
+        return flag;
        
-    }
-    public boolean task_checker_stop(String task){
-        summary_task();
-       
-        return true;
-    }
-
-
-
-     
+    }     
 }
+
+*/

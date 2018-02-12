@@ -1,3 +1,9 @@
+commit bf005709b37fa10da373692f6ce981d392cd1d7d
+Author: Lakhwinder Singh <lakhwinderpalsingh@csus.edu>
+Date:   Sat Feb 10 19:26:52 2018 -0800
+
+    Fixing logic for checking if task is started or not yet
+
 commit 1e934712aeb425b71b55424eda3790e07ed2c6b7
 Author: Lakhwinder Singh <lakhwinderpalsingh@csus.edu>
 Date:   Sat Feb 10 19:14:31 2018 -0800
