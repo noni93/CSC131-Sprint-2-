@@ -1,3 +1,9 @@
+commit 34b00fc2895fe6af0753b5db885da19bea079050
+Author: Lakhwinder Singh <lakhwinderpalsingh@csus.edu>
+Date:   Mon Feb 12 10:13:40 2018 -0800
+
+    reworking the code by using abstract data type
+
 commit bf005709b37fa10da373692f6ce981d392cd1d7d
 Author: Lakhwinder Singh <lakhwinderpalsingh@csus.edu>
 Date:   Sat Feb 10 19:26:52 2018 -0800
