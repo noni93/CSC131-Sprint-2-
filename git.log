@@ -1,3 +1,9 @@
+commit 32c23a743371dc9898d9c1cc343d65ea27af8655
+Author: Lakhwinder Singh <lakhwinderpalsingh@csus.edu>
+Date:   Wed Feb 14 13:31:36 2018 -0800
+
+    Fixed describe function to keep updated size, not overwritten by null when using describe function wihtout providing size for the task
+
 commit 515ff95e76ee4cb0da13e464b13871311a8b0273
 Author: Lakhwinder Singh <lakhwinderpalsingh@csus.edu>
 Date:   Wed Feb 14 11:33:34 2018 -0800
