@@ -1,3 +1,9 @@
+commit e317b7b669b601d098feb9383ba011dd1702bbb3
+Author: Lakhwinder Singh <lakhwinderpalsingh@csus.edu>
+Date:   Tue Feb 13 20:22:07 2018 -0800
+
+    Fixed the logic and added size function
+
 commit 34b00fc2895fe6af0753b5db885da19bea079050
 Author: Lakhwinder Singh <lakhwinderpalsingh@csus.edu>
 Date:   Mon Feb 12 10:13:40 2018 -0800

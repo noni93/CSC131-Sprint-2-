@@ -113,15 +113,18 @@ class LogFileEntry{
     String description = "";
     String task_size = "";
     String task_time ="";
-    String total_time = "";
+    String total_time = "00:00:00";
     int occur = 0;
 }
 
 class FileLinekedList{
     LinkedList<LogFileEntry> list = new LinkedList<LogFileEntry>();
     void print_summary(String input){
-        read();
-        sort_list();
+        read(); // read the log file to linked list
+        sort_list();    // sort the linked list
+        if(list.isEmpty()){
+            System.out.println("Log file empty");
+        }
         if(input.equals("all")){
             for(int k = 0; k< list.size(); k++){
                 System.out.println("\nTask Name: " + list.get(k).task_name  +"\tDescription: "  + list.get(k).description + " \n"
@@ -149,21 +152,21 @@ class FileLinekedList{
             Scanner sc = new Scanner(new FileInputStream(file));
             while (sc.hasNextLine()){
                 content = sc.nextLine();
-                String[] token = content.split("\t");
+                String[] token = content.split("\t"); // split string based on tab 
                 log = new LogFileEntry();
-                if(token.length <= 3 ){
+                if(token.length <= 3 ){ // for size
                     if(token[0].equals("size")){
                         log.command = token[0];
                         log.task_name = token[1];
                         log.task_size = token[2];
                         list.add(log);
-                    }else{
+                    }else{ // save for start,stop
                         log.command = token[0];
                         log.task_name = token[1];
                         log.task_time = token[2];
                         list.add(log);
                     }
-                }else if(token.length == 5){
+                }else if(token.length == 5){ // for describe
                     log.command = token[0];
                     log.task_name = token[1];
                     log.task_time = token[2];
@@ -189,8 +192,12 @@ class FileLinekedList{
                 String stop_time = "00:00:00";
                 String cmd = list.get(i).command;   // get the command
                 if(cmd.contains("start")){
-                    list.get(i).occur++;
+                    list.get(i).occur++; // increment occurance to check if another node has same task name with start command
                 } 
+                if(cmd.contains("describe")){
+                cmd = "start";
+                list.get(i).occur++;
+                }
                 for(int j = i+1; j<list.size();j++){
                     // if found two elements with same task name 
                     if(list.get(j).task_name.equals(first)){
@@ -202,26 +209,25 @@ class FileLinekedList{
                             stop_time = list.get(j).task_time;  
                             // get the time difference and assign to the start command element
                             list.get(i).total_time = timeDifference(start_time,stop_time,"diff");
-                            list.get(i).occur++;
+                            list.get(i).occur++; // increment occurance od current task
                             list.remove(j);
                             j--;
                         }
-                         if(list.get(j).command.contains("describe")){
-                             if(list.get(i).description == ""){
+                         if(list.get(j).command.contains("describe") && j != i && (list.get(j).task_name.equals(first))){  // if more descriptions are found
+                             if(list.get(i).description == ""){ // if initial description is empty
                                 list.get(i).description = list.get(j).description;
-                             }else{
+                             }else{ // if initial description is previously described then add new description instead of overwriting
                                 list.get(i).description += "\n\t\t\tNew Description: " + list.get(j).description;
                              }
                             list.get(i).task_size = list.get(j).task_size;
-                            list.remove(j);
-                            j--;
+                            list.remove(j); // remove current node
+                            j--;    // point to previous node as current node is removed and next node points to current position
                         }   
-                        if(list.get(j).command.contains("size")){
-                            list.get(i).task_size = list.get(j).task_size;
+                       if(list.get(j).command.contains("size") && j != i && (list.get(j).task_name.equals(first)) ){
+                            list.get(i).task_size = list.get(j).task_size; // get the size and update to the latest provided
                             list.remove(j);
                             j--;
-                            
-                        }                        
+                        }                       
                     }
                 }  
         } 
@@ -229,10 +235,10 @@ class FileLinekedList{
                     for(int x = 0; x<list.size();x++){
                        for(int y = x+1; y <list.size(); y++){
                            if(list.get(x).task_name.equals(list.get(y).task_name)){
-                            if(list.get(y).total_time.equals("")){
-                                list.get(x).total_time = "00:00:00";
-                                list.remove(y);
-                            }
+                                if(list.get(y).total_time.equals("00:00:00")){
+                                    list.get(x).total_time = "00:00:00";
+                                    list.remove(y);
+                                }
                             else {
                                 list.get(x).total_time = timeDifference(list.get(x).total_time,list.get(y).total_time, "add");
                                 list.remove(y);
@@ -260,7 +266,7 @@ class FileLinekedList{
             long minutes = (difference % 3600) / 60;
             long seconds = difference % 60;
            final_date=  String.format(hours+ ":"+minutes+":"+seconds);
-        }else if(command.equals("add")){
+        }else if(command.equals("add")){    
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
             Date date_start = null;
             Date date_stop = null;
@@ -272,19 +278,17 @@ class FileLinekedList{
             }
             long start1 = date_start.getTime()/1000;
             long start2 = date_stop.getTime()/1000;
-           long seconds = (start1 % 60) + (start2 % 60);
-           long minutes = (start1 %3600 / 60) + (start2 %3600 / 60);
-           long hours = ((start1/3600)-8) + ((start2/3600)-8);
-           if(seconds >= 60){
-               minutes++;
-               seconds = seconds - 60;
-           }
-           if(minutes >= 60){
-               hours++;
-               minutes = minutes - 60;
-           }
-           final_date=  String.format(hours+ ":"+minutes+":"+seconds);
-    } 
-    return final_date;  
+            long seconds = (start1 % 60) + (start2 % 60);
+            long minutes = (start1 %3600 / 60) + (start2 %3600 / 60);
+            long hours = ((start1/3600)-8) + ((start2/3600)-8);
+            if(seconds >= 60){
+                minutes++;
+                seconds = seconds - 60; }
+            if(minutes >= 60){
+                hours++;
+                minutes = minutes - 60; }
+            final_date=  String.format(hours+ ":"+minutes+":"+seconds);
+        } 
+     return final_date;  
     }
 }
