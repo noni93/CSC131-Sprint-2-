@@ -1,3 +1,9 @@
+commit 515ff95e76ee4cb0da13e464b13871311a8b0273
+Author: Lakhwinder Singh <lakhwinderpalsingh@csus.edu>
+Date:   Wed Feb 14 11:33:34 2018 -0800
+
+    added start from describe function and fixed start/stop time
+
 commit e317b7b669b601d098feb9383ba011dd1702bbb3
 Author: Lakhwinder Singh <lakhwinderpalsingh@csus.edu>
 Date:   Tue Feb 13 20:22:07 2018 -0800

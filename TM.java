@@ -1,13 +1,20 @@
 /*Lakhwinder pal Singh
-  CSC 131 Assignment 2 
+  CSC 131 Assignment 2  
   Individual Project - Sprint 2 (Design and Coding)
+  Task Manager v1.2
   Prof. Posnett
-  this program track the time 
+  this program track the time  spent on particular task
+ -------------------------------------------------------------------------------
+  v1.1
   The application needs to log the time that work began on a particular task.
   The application needs to log the time that work stopped on a particular task.
   The application needs to be able to record a description for a particular task.
   The application needs to provide a summary of the time spent on a particular task.
-  The application needs to provide a  summary report for all tasks. */
+  The application needs to provide a  summary report for all tasks. 
+  ----------------------------------------------------------------------------------
+  v1.2 updates
+  added task size functionality to the program.
+  -----------------------------------------------------------------------------------*/
 
 import java.util.*;
 import java.io.*;
@@ -18,7 +25,6 @@ import java.time.*;
 import java.time.temporal.ChronoUnit;
 
 public class TM{
-    
     WriteLog newLog = new WriteLog();
     public static void main(String[] args){
         new TM().appMain(args);    
@@ -46,7 +52,16 @@ public class TM{
             }
         }
         else if(args.length == 3){
-            newLog.save_log_file("size"+"\t" + args[1] + "\t" + args[2]);
+            String date = null;
+            switch(args[0]){
+                case "size" :  newLog.save_log_file("size"+"\t" + args[1] + "\t" + args[2]);
+                            break;
+                case "describe": date = get_time();
+                                newLog.save_log_file("describe" + "\t" + args[1] + "\t" + date + "\t"+ args[2]);
+                                break; 
+                default: usage();
+            }
+        
         }
         else if(args.length == 4){
             String date = get_time();
@@ -114,7 +129,7 @@ class LogFileEntry{
     String task_size = "";
     String task_time ="";
     String total_time = "00:00:00";
-    int occur = 0;
+    int occur = 0;      // saves occurances of particular task 
 }
 
 class FileLinekedList{
@@ -141,7 +156,7 @@ class FileLinekedList{
         }
     }
 
-    void read(){
+    void read(){    // read the log file and save it in linked list of ADT
         String content = null;
         LogFileEntry log;
         File file = new File("log.txt");
@@ -166,7 +181,14 @@ class FileLinekedList{
                         log.task_time = token[2];
                         list.add(log);
                     }
-                }else if(token.length == 5){ // for describe
+                }else if(token.length == 4){ // for describe
+                    log.command = token[0];
+                    log.task_name = token[1];
+                    log.task_time = token[2];
+                    log.description = token[3];
+                    list.add(log); 
+                }
+                else if(token.length == 5){ // for describe with size
                     log.command = token[0];
                     log.task_name = token[1];
                     log.task_time = token[2];
@@ -194,22 +216,19 @@ class FileLinekedList{
                 if(cmd.contains("start")){
                     list.get(i).occur++; // increment occurance to check if another node has same task name with start command
                 } 
-                if(cmd.contains("describe")){
-                cmd = "start";
-                list.get(i).occur++;
+                if(cmd.contains("describe")){   // if task is started by describe function
+                cmd = "start";      // change the command to start for it to behave as task has started
+                list.get(i).occur++;    // increment the occurance of task
                 }
-                for(int j = i+1; j<list.size();j++){
-                    // if found two elements with same task name 
-                    if(list.get(j).task_name.equals(first)){
-                        // if the command at new position is stop, get the stopping time
-                        String comm = list.get(j).command;
-                        int test = list.get(i).occur % 2;
-                        if(comm.contains("stop") && cmd.contains("start") && test != 0){
+                for(int j = i+1; j<list.size();j++){  
+                    if(list.get(j).task_name.equals(first)){  // if found two elements with same task name 
+                        String comm = list.get(j).command;  // gets command from next node
+                        int test = list.get(i).occur % 2;   // ge the occurance of task 
+                        if(comm.contains("stop") && cmd.contains("start") && test != 0){// if the command at new position is stop, get the stopping time
                             String start_time = list.get(i).task_time;
                             stop_time = list.get(j).task_time;  
-                            // get the time difference and assign to the start command element
-                            list.get(i).total_time = timeDifference(start_time,stop_time,"diff");
-                            list.get(i).occur++; // increment occurance od current task
+                            list.get(i).total_time = timeDifference(start_time,stop_time,"diff");// get the time difference and assign to the start command element
+                            list.get(i).occur++; // increment occurance of current task
                             list.remove(j);
                             j--;
                         }
@@ -218,8 +237,10 @@ class FileLinekedList{
                                 list.get(i).description = list.get(j).description;
                              }else{ // if initial description is previously described then add new description instead of overwriting
                                 list.get(i).description += "\n\t\t\tNew Description: " + list.get(j).description;
+                                if(!list.get(j).task_size.isEmpty()){   // to get size task, and not overwritten by null when using decribe without size
+                                    list.get(i).task_size = list.get(j).task_size;
+                                }
                              }
-                            list.get(i).task_size = list.get(j).task_size;
                             list.remove(j); // remove current node
                             j--;    // point to previous node as current node is removed and next node points to current position
                         }   
@@ -234,12 +255,12 @@ class FileLinekedList{
         // checks if task with same name exists in the list
                     for(int x = 0; x<list.size();x++){
                        for(int y = x+1; y <list.size(); y++){
-                           if(list.get(x).task_name.equals(list.get(y).task_name)){
-                                if(list.get(y).total_time.equals("00:00:00")){
-                                    list.get(x).total_time = "00:00:00";
+                           if(list.get(x).task_name.equals(list.get(y).task_name)){ // if same task name found at another location
+                                if(list.get(y).total_time.equals("00:00:00")){  // if no stop time is given
+                                    list.get(x).total_time = "00:00:00";    
                                     list.remove(y);
                                 }
-                            else {
+                            else {  // if total time is given then add the two times
                                 list.get(x).total_time = timeDifference(list.get(x).total_time,list.get(y).total_time, "add");
                                 list.remove(y);
                             }
